@@ -5,6 +5,15 @@ from life360 import life360
 import datetime
 import requests
 
+#Make test that user is online and his phone sending geodata
+def testdate( d):
+    diff = datetime.datetime.now() - d
+    s = diff.seconds
+    if s < 3600:
+        return '1'
+    else:
+        return '0'
+
 if __name__ == "__main__":
 
     # basic authorization hash (base64 if you want to decode it and see the sekrets)
@@ -34,6 +43,11 @@ if __name__ == "__main__":
             user = m['firstName']
             location = m['location']['latitude'] +", "+ m['location']['longitude']
             battery = m['location']['battery']
-            r = requests.post("http://127.0.0.1/gps.php", data={'deviceid': user, 'location': location, 'battlevel': battery})
+            speed = m['location']['speed']
+            charge = m['location']['charge']
+            accuracy = m['location']['accuracy']
+            user_status = testdate(datetime.datetime.fromtimestamp(int(m['location']['timestamp'])))
+            if user_status == "1":
+                r = requests.post("http://localhost/gps.php", data={'deviceid': user, 'location': location, 'accuracy': accuracy, 'speed': speed, 'battlevel': battery, 'charging': charge})
     else:
         print "Error authenticating"
